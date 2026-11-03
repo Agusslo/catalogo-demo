@@ -1,0 +1,54 @@
+:root {
+  --marca: #e85d75;          /* se pisa con el color del local desde Supabase */
+  --marca-suave: color-mix(in srgb, var(--marca) 14%, white);
+  --tinta: #1f2a37;
+  --tinta-suave: #5b6676;
+  --fondo: #fbf7f2;
+  --tarjeta: #ffffff;
+  --borde: #ece5dc;
+  --ok: #1f9d6b;
+  --radio: 18px;
+  --sombra: 0 6px 24px rgb(31 42 55 / 8%);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--tinta);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; margin: 0; line-height: 1.1; }
+
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .5; }
+
+input, textarea, select {
+  font: inherit;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--tinta);
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--marca); }
+
+.btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 700;
+  background: var(--marca);
+  color: #fff;
+  transition: transform .15s ease, filter .15s ease;
+}
+.btn:hover:not(:disabled) { filter: brightness(1.05); transform: translateY(-1px); }
+.btn.secundario { background: var(--marca-suave); color: var(--tinta); }
+.btn.whatsapp { background: #25d366; color: #0b3d22; }
+
+.contenedor { max-width: 980px; margin: 0 auto; padding: 0 16px; }

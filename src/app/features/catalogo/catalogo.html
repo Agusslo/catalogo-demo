@@ -1,0 +1,193 @@
+@if (catalogo.cargando()) {
+  <div class="estado">
+    <div class="spinner"></div>
+    <p>Cargando el menú…</p>
+  </div>
+} @else if (catalogo.error()) {
+  <div class="estado">
+    <p>{{ catalogo.error() }}</p>
+    <button class="btn" (click)="catalogo.cargar()">Reintentar</button>
+  </div>
+} @else {
+  @let negocio = catalogo.negocio()!;
+
+  <header class="hero">
+    <div class="contenedor hero-contenido">
+      <span class="estado-local" [class.cerrado]="!negocio.abierto">
+        {{ negocio.abierto ? 'Abierto ahora' : 'Cerrado por el momento' }}
+      </span>
+      <h1>{{ negocio.nombre }}</h1>
+      @if (negocio.slogan) { <p class="slogan">{{ negocio.slogan }}</p> }
+      <ul class="datos-local">
+        @if (negocio.horario) { <li>🕒 {{ negocio.horario }}</li> }
+        @if (negocio.direccion) { <li>📍 {{ negocio.direccion }}</li> }
+      </ul>
+    </div>
+    <svg class="ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,40 C240,80 480,0 720,32 C960,64 1200,16 1440,40 L1440,80 L0,80 Z" />
+    </svg>
+  </header>
+
+  <nav class="categorias">
+    <div class="contenedor chips">
+      @for (s of secciones(); track s.id) {
+        <button class="chip" (click)="irA(s.id)">{{ s.icono }} {{ s.nombre }}</button>
+      }
+    </div>
+  </nav>
+
+  <main class="contenedor">
+    @for (s of secciones(); track s.id) {
+      <section class="seccion" [id]="'cat-' + s.id">
+        <h2>{{ s.nombre }}</h2>
+        <div class="grilla">
+          @for (p of s.productos; track p.id) {
+            <article class="producto" [class.agotado]="!p.disponible">
+              <div class="imagen">
+                @if (p.imagen_url) {
+                  <img [src]="p.imagen_url" [alt]="p.nombre" loading="lazy" />
+                } @else {
+                  <span aria-hidden="true">{{ s.icono }}</span>
+                }
+              </div>
+              <div class="info">
+                <h3>{{ p.nombre }}</h3>
+                @if (p.descripcion) { <p>{{ p.descripcion }}</p> }
+                <div class="pie">
+                  <strong>{{ p.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' : 'es-AR' }}</strong>
+                  @if (p.disponible) {
+                    <button class="btn agregar" (click)="tocarProducto(p)">
+                      {{ p.max_sabores > 0 ? 'Elegir sabores' : 'Agregar' }}
+                    </button>
+                  } @else {
+                    <span class="sin-stock">Sin stock</span>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  </main>
+
+  <footer class="contenedor pie-pagina">
+    <p>Pedidos por WhatsApp · {{ negocio.nombre }}</p>
+    <p class="firma">
+      Hecho por <a href="https://agusslo.github.io/CV-LopezAgustin" target="_blank" rel="noopener">Agus Dev</a>
+      · <a routerLink="/admin">Panel del local</a>
+    </p>
+  </footer>
+
+  @if (agregadoRecien()) {
+    <div class="toast">✓ {{ agregadoRecien() }} agregado</div>
+  }
+
+  @if (carrito.cantidadTotal() > 0 && !carritoAbierto()) {
+    <button class="barra-carrito" (click)="carritoAbierto.set(true)">
+      <span class="contador">{{ carrito.cantidadTotal() }}</span>
+      <span>Ver mi pedido</span>
+      <strong>{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' : 'es-AR' }}</strong>
+    </button>
+  }
+
+  <!-- Selector de sabores -->
+  @if (productoEligiendo(); as p) {
+    <div class="fondo-modal" (click)="productoEligiendo.set(null)"></div>
+    <div class="hoja" role="dialog" aria-modal="true" [attr.aria-label]="'Sabores para ' + p.nombre">
+      <div class="hoja-cabecera">
+        <div>
+          <h3>{{ p.nombre }}</h3>
+          <p>Elegí hasta {{ p.max_sabores }} {{ p.max_sabores === 1 ? 'sabor' : 'sabores' }} · {{ saboresElegidos().length }}/{{ p.max_sabores }}</p>
+        </div>
+        <button class="cerrar" (click)="productoEligiendo.set(null)" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="hoja-cuerpo">
+        @for (g of gruposSabores(); track g.nombre) {
+          <h4>{{ g.nombre }}</h4>
+          <div class="sabores">
+            @for (sabor of g.sabores; track sabor.id) {
+              @let elegido = saboresElegidos().includes(sabor.nombre);
+              <button
+                class="sabor"
+                [class.elegido]="elegido"
+                [disabled]="!elegido && saboresElegidos().length >= p.max_sabores"
+                (click)="alternarSabor(sabor.nombre)"
+              >{{ sabor.nombre }}</button>
+            }
+          </div>
+        }
+      </div>
+      <div class="hoja-pie">
+        <button class="btn ancho" [disabled]="saboresElegidos().length === 0" (click)="confirmarSabores()">
+          Agregar · {{ p.precio | currency: 'ARS' : 'symbol-narrow' : '1.0-0' : 'es-AR' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Carrito -->
+  @if (carritoAbierto()) {
+    <div class="fondo-modal" (click)="carritoAbierto.set(false)"></div>
+    <div class="hoja" role="dialog" aria-modal="true" aria-label="Tu pedido">
+      <div class="hoja-cabecera">
+        <h3>Tu pedido</h3>
+        <button class="cerrar" (click)="carritoAbierto.set(false)" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="hoja-cuerpo">
+        @for (i of carrito.items(); track i.clave) {
+          <div class="item">
+            <span class="item-icono">{{ iconoDe(i.producto.categoria_id) }}</span>
+            <div class="item-info">
+              <strong>{{ i.producto.nombre }}</strong>
+              @if (i.sabores.length) { <small>{{ i.sabores.join(', ') }}</small> }
+              <span>{{ i.producto.precio * i.cantidad | currency: 'ARS' : 'symbol-narrow' : '1.0-0' : 'es-AR' }}</span>
+            </div>
+            <div class="stepper">
+              <button (click)="carrito.cambiarCantidad(i.clave, -1)" aria-label="Quitar uno">−</button>
+              <span>{{ i.cantidad }}</span>
+              <button (click)="carrito.cambiarCantidad(i.clave, 1)" aria-label="Agregar uno">+</button>
+            </div>
+          </div>
+        } @empty {
+          <p class="vacio">Todavía no agregaste nada.</p>
+        }
+
+        @if (carrito.cantidadTotal() > 0) {
+          <div class="formulario">
+            <label>Tu nombre
+              <input [(ngModel)]="datos.nombre" name="nombre" placeholder="Ej: Sofía" autocomplete="given-name" />
+            </label>
+            <div class="entrega">
+              <button [class.activa]="datos.entrega === 'retiro'" (click)="datos.entrega = 'retiro'">Retiro en el local</button>
+              <button [class.activa]="datos.entrega === 'envio'" (click)="datos.entrega = 'envio'">Envío a domicilio</button>
+            </div>
+            @if (datos.entrega === 'envio') {
+              <label>Dirección
+                <input [(ngModel)]="datos.direccion" name="direccion" placeholder="Calle, número y entre calles" autocomplete="street-address" />
+              </label>
+            }
+            <label>Comentario (opcional)
+              <textarea [(ngModel)]="datos.comentario" name="comentario" rows="2" placeholder="Ej: sin cucurucho, tocar timbre"></textarea>
+            </label>
+          </div>
+        }
+      </div>
+      @if (carrito.cantidadTotal() > 0) {
+        <div class="hoja-pie">
+          <div class="total">
+            <span>Total</span>
+            <strong>{{ carrito.total() | currency: 'ARS' : 'symbol-narrow' : '1.0-0' : 'es-AR' }}</strong>
+          </div>
+          @if (!negocio.abierto) {
+            <p class="aviso">El local está cerrado: podés armar el pedido y enviarlo cuando abra.</p>
+          }
+          <button class="btn whatsapp ancho" [disabled]="!negocio.abierto || !pedidoValido()" (click)="enviarPedido()">
+            Enviar pedido por WhatsApp
+          </button>
+          <button class="vaciar" (click)="carrito.vaciar()">Vaciar pedido</button>
+        </div>
+      }
+    </div>
+  }
+}

@@ -1,0 +1,80 @@
+<div class="admin">
+  <div class="cabecera">
+    <div>
+      <h1>Panel del local</h1>
+      <a routerLink="/">Ver el menú como cliente →</a>
+    </div>
+    <button class="btn secundario" (click)="salir()">Salir</button>
+  </div>
+
+  @if (catalogo.negocio(); as negocio) {
+    <div class="tarjeta fila" style="margin-bottom: 16px">
+      <div class="nombre">
+        {{ negocio.abierto ? 'El local está abierto' : 'El local está cerrado' }}
+        <small>Cuando está cerrado, los clientes no pueden mandar pedidos.</small>
+      </div>
+      <button class="switch" [class.on]="negocio.abierto" (click)="alternarAbierto()" aria-label="Abrir o cerrar el local"></button>
+    </div>
+  }
+
+  <div class="pestanas">
+    <button [class.activa]="pestana() === 'productos'" (click)="pestana.set('productos')">Productos</button>
+    <button [class.activa]="pestana() === 'sabores'" (click)="pestana.set('sabores')">Sabores</button>
+    <button [class.activa]="pestana() === 'local'" (click)="pestana.set('local')">Datos del local</button>
+  </div>
+
+  <div class="tarjeta">
+    @switch (pestana()) {
+      @case ('productos') {
+        @for (s of secciones(); track s.id) {
+          <p class="grupo-titulo">{{ s.nombre }}</p>
+          @for (p of s.productos; track p.id) {
+            <div class="fila">
+              <div class="nombre">{{ p.nombre }} @if (p.descripcion) { <small>{{ p.descripcion }}</small> }</div>
+              <label class="precio">$
+                <input #precio type="number" min="0" step="100" [value]="p.precio"
+                  (blur)="guardarPrecio(p, precio.value)" (keydown.enter)="precio.blur()" [attr.aria-label]="'Precio de ' + p.nombre" />
+              </label>
+              <button class="switch" [class.on]="p.disponible" (click)="alternarProducto(p)" [attr.aria-label]="'Stock de ' + p.nombre"></button>
+            </div>
+          }
+        }
+      }
+      @case ('sabores') {
+        @for (g of gruposSabores(); track g.nombre) {
+          <p class="grupo-titulo">{{ g.nombre }}</p>
+          @for (s of g.sabores; track s.id) {
+            <div class="fila">
+              <div class="nombre">{{ s.nombre }}</div>
+              <button class="switch" [class.on]="s.disponible" (click)="alternarSabor(s)" [attr.aria-label]="'Disponibilidad de ' + s.nombre"></button>
+            </div>
+          }
+        }
+        <form class="nuevo" (ngSubmit)="agregarSabor()">
+          <input [(ngModel)]="nuevoSabor.nombre" name="nombre" placeholder="Nuevo sabor" />
+          <input [(ngModel)]="nuevoSabor.grupo" name="grupo" placeholder="Grupo (ej: Frutales)" />
+          <button class="btn" type="submit">Agregar</button>
+        </form>
+      }
+      @case ('local') {
+        <form class="local" (ngSubmit)="guardarLocal()">
+          <label class="campo">Nombre del local <input [(ngModel)]="local.nombre" name="nombre" /></label>
+          <label class="campo">Frase <input [(ngModel)]="local.slogan" name="slogan" /></label>
+          <label class="campo">WhatsApp (con código de país, sin +)
+            <input [(ngModel)]="local.whatsapp" name="whatsapp" inputmode="numeric" placeholder="5492255123456" />
+          </label>
+          <label class="campo">Dirección <input [(ngModel)]="local.direccion" name="direccion" /></label>
+          <label class="campo">Horario <input [(ngModel)]="local.horario" name="horario" /></label>
+          <label class="campo">Color principal
+            <span class="color"><input type="color" [(ngModel)]="local.color_principal" name="color" /> {{ local.color_principal }}</span>
+          </label>
+          <button class="btn" type="submit">Guardar cambios</button>
+        </form>
+      }
+    }
+  </div>
+</div>
+
+@if (aviso(); as a) {
+  <div class="aviso-guardado" [class.mal]="!a.ok">{{ a.texto }}</div>
+}

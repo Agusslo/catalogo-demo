@@ -1,0 +1,41 @@
+.admin { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+.cabecera { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+.cabecera h1 { font-size: 1.8rem; }
+.cabecera a { color: var(--tinta-suave); font-size: .9rem; }
+
+.tarjeta { background: var(--tarjeta); border-radius: var(--radio); box-shadow: var(--sombra); padding: 20px; }
+.login { max-width: 400px; margin: 12vh auto 0; display: grid; gap: 14px; }
+.login h1 { font-size: 1.8rem; }
+.login p { margin: 0; color: var(--tinta-suave); }
+.login label, .campo { display: grid; gap: 6px; font-size: .9rem; font-weight: 500; }
+.error { color: #c0392b; font-size: .9rem; margin: 0; }
+
+.pestanas { display: flex; gap: 6px; background: var(--marca-suave); padding: 5px; border-radius: 999px; margin-bottom: 16px; }
+.pestanas button { flex: 1; border: 0; background: none; border-radius: 999px; padding: 10px; font-weight: 500; color: var(--tinta); }
+.pestanas button.activa { background: #fff; font-weight: 700; box-shadow: 0 2px 8px rgb(0 0 0 / 8%); }
+
+.grupo-titulo { margin: 18px 0 6px; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta-suave); }
+.fila { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--borde); }
+.fila:last-child { border-bottom: 0; }
+.fila .nombre { flex: 1; min-width: 0; font-weight: 500; }
+.fila .nombre small { display: block; color: var(--tinta-suave); font-weight: 400; }
+.precio { width: 120px; display: flex; align-items: center; gap: 4px; }
+.precio input { padding: 8px 10px; text-align: right; }
+
+/* Interruptor */
+.switch { position: relative; flex: none; width: 46px; height: 26px; border: 0; border-radius: 999px; background: #d6d0c8; transition: background .2s; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .2s; }
+.switch.on { background: var(--ok); }
+.switch.on::after { transform: translateX(20px); }
+
+.nuevo { display: flex; gap: 8px; margin-top: 14px; }
+.nuevo input:first-child { flex: 2; }
+.nuevo input:nth-child(2) { flex: 1; }
+
+.local { display: grid; gap: 14px; }
+.local .fila { border: 0; padding: 0; }
+.color { display: flex; gap: 10px; align-items: center; }
+.color input[type=color] { width: 52px; height: 44px; padding: 4px; }
+
+.aviso-guardado { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--tinta); color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 700; z-index: 30; }
+.aviso-guardado.mal { background: #c0392b; }
