@@ -2,7 +2,7 @@
 
 Demo de un menú online para comercios (en este caso, una heladería): el cliente arma su pedido, elige sabores y lo manda listo por WhatsApp. El dueño cambia precios, stock, sabores y horarios desde un panel, sin tocar código.
 
-**Demo:** https://catalogo-demo.vercel.app
+**Demo:** https://catalogo-demo-delta.vercel.app
 
 ## Funcionalidades
 
