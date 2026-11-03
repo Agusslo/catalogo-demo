@@ -108,6 +108,9 @@ export class CatalogoPage {
   enviarPedido() {
     const negocio = this.catalogo.negocio();
     if (!negocio || !negocio.abierto || !this.pedidoValido()) return;
-    window.open(this.carrito.linkWhatsapp(negocio, this.datos), '_blank');
+    const url = this.carrito.linkWhatsapp(negocio, this.datos);
+    // Si el navegador bloquea la pestaña nueva (pasa en algunos celulares o con Brave), abrimos WhatsApp en la misma pestaña.
+    const ventana = window.open(url, '_blank', 'noopener');
+    if (!ventana) window.location.href = url;
   }
 }
